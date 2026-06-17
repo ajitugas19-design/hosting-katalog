@@ -1,0 +1,1584 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>YUURECO Pillow Catalog 2026</title>
+    <style>
+      /* ── Design tokens ─────────────────────────────────────── */
+      :root {
+        --br: #7a3e28;
+        --br-dk: #4e2616;
+        --br-lt: #c8956c;
+        --paper: #fffdf8;
+        --ink: #2d1e16;
+        --muted: #8a7066;
+        --line: #e8d5c4;
+        --bg-from: #f5ece2;
+        --bg-to: #ede0d4;
+        --shadow-page: 0 12px 40px rgba(60, 28, 14, 0.16);
+        --shadow-book: 0 32px 90px rgba(50, 24, 10, 0.25);
+        --r: 16px;
+        --serif: "Georgia", "Times New Roman", serif;
+        --sans:
+          Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --ease-flip: cubic-bezier(0.32, 0.14, 0.28, 1);
+        --dur-flip: 1.1s;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--sans);
+        color: var(--ink);
+        background: linear-gradient(
+          145deg,
+          var(--bg-from) 0%,
+          var(--bg-to) 100%
+        );
+        min-height: 100dvh;
+        overflow-x: hidden;
+      }
+
+      /* ── Stage ─────────────────────────────────────────────── */
+      #stage {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100dvh;
+        padding: 20px 12px 28px;
+        gap: 18px;
+      }
+
+      /* ── Brand bar ─────────────────────────────────────────── */
+      .brand-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--br-dk);
+      }
+      .brand-bar .logo-text {
+        font-family: var(--serif);
+        font-size: 22px;
+        letter-spacing: 0.18em;
+        font-weight: 500;
+      }
+      .brand-bar .divider {
+        width: 1px;
+        height: 18px;
+        background: var(--br-lt);
+        opacity: 0.6;
+      }
+      .brand-bar .sub {
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      /* ── Book wrapper ──────────────────────────────────────── */
+      #book-wrap {
+        position: relative;
+        width: 100%;
+        max-width: 960px;
+      }
+
+      /* ─── Desktop spread ──────────────────────────────────── */
+      #book-desk {
+        display: flex;
+        width: 100%;
+        height: 600px;
+        perspective: 3000px;
+        filter: drop-shadow(var(--shadow-book));
+      }
+      .spine-glow {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 2%;
+        height: 96%;
+        width: 18px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.55),
+          rgba(90, 42, 20, 0.15),
+          transparent
+        );
+        z-index: 6;
+        pointer-events: none;
+        border-radius: 999px;
+      }
+
+      /* Pages */
+      .pg {
+        position: absolute;
+        top: 0;
+        width: calc(50% - 1px);
+        height: 100%;
+        background: var(--paper);
+        padding: 32px 34px 46px;
+        overflow: hidden;
+        border: 1px solid rgba(100, 60, 38, 0.1);
+        will-change: contents;
+      }
+      .pg.L {
+        left: 0;
+        border-radius: var(--r) 0 0 var(--r);
+        box-shadow:
+          inset -14px 0 20px rgba(80, 40, 20, 0.07),
+          var(--shadow-page);
+      }
+      .pg.R {
+        right: 0;
+        border-radius: 0 var(--r) var(--r) 0;
+        box-shadow:
+          inset 14px 0 20px rgba(80, 40, 20, 0.06),
+          var(--shadow-page);
+      }
+      .pg.empty {
+        display: grid;
+        place-items: center;
+        font-family: var(--serif);
+        font-size: 26px;
+        letter-spacing: 0.1em;
+        color: var(--line);
+        background: linear-gradient(180deg, #fffdf8, #f8ede2);
+      }
+      .pg.cover-pg {
+        padding: 0;
+      }
+      .pg.back-pg {
+        padding: 0;
+      }
+
+      /* Flipper */
+      .flipper {
+        position: absolute;
+        top: 0;
+        width: 50%;
+        height: 100%;
+        transform-style: preserve-3d;
+        z-index: 9;
+        pointer-events: none;
+        display: none;
+        will-change: transform, filter;
+      }
+      .flipper.on {
+        display: block;
+      }
+      .flipper.fR {
+        right: 0;
+        transform-origin: left center;
+      }
+      .flipper.fL {
+        left: 0;
+        transform-origin: right center;
+        transform: rotateY(-180deg);
+      }
+      .face {
+        position: absolute;
+        inset: 0;
+        background: var(--paper);
+        padding: 32px 34px 46px;
+        overflow: hidden;
+        border: 1px solid rgba(100, 60, 38, 0.1);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+      }
+      .face.fv {
+        z-index: 2;
+      }
+      .face.bk {
+        transform: rotateY(180deg);
+      }
+      .flipper.fR .face.fv {
+        border-radius: 0 var(--r) var(--r) 0;
+        box-shadow: inset 14px 0 20px rgba(80, 40, 20, 0.06);
+      }
+      .flipper.fR .face.bk {
+        border-radius: var(--r) 0 0 var(--r);
+        box-shadow:
+          inset -14px 0 20px rgba(80, 40, 20, 0.07),
+          -14px 0 30px rgba(30, 12, 6, 0.18);
+      }
+      .flipper.fL .face.fv {
+        border-radius: 0 var(--r) var(--r) 0;
+        box-shadow:
+          inset 14px 0 20px rgba(80, 40, 20, 0.06),
+          14px 0 30px rgba(30, 12, 6, 0.16);
+      }
+      .flipper.fL .face.bk {
+        border-radius: var(--r) 0 0 var(--r);
+        box-shadow: inset -14px 0 20px rgba(80, 40, 20, 0.07);
+      }
+
+      /* ─── Mobile single page ──────────────────────────────── */
+      #book-mob {
+        display: none;
+        width: 100%;
+        max-width: 460px;
+        min-height: 640px;
+        perspective: 2400px;
+        filter: drop-shadow(var(--shadow-book));
+        position: relative;
+      }
+      .spg {
+        position: absolute;
+        inset: 0;
+        background: var(--paper);
+        border-radius: var(--r);
+        padding: 24px 26px 42px;
+        overflow: hidden;
+        border: 1px solid rgba(100, 60, 38, 0.1);
+        box-shadow: var(--shadow-page);
+      }
+      .spg.empty {
+        display: grid;
+        place-items: center;
+        font-family: var(--serif);
+        font-size: 22px;
+        color: var(--line);
+      }
+      .spg.cover-pg {
+        padding: 0;
+      }
+      .spg.back-pg {
+        padding: 0;
+      }
+      .sflipper {
+        position: absolute;
+        inset: 0;
+        transform-style: preserve-3d;
+        z-index: 9;
+        pointer-events: none;
+        display: none;
+        will-change: transform, filter;
+      }
+      .sflipper.on {
+        display: block;
+      }
+      .sflipper.fwd {
+        transform-origin: left center;
+      }
+      .sflipper.bwd {
+        transform-origin: right center;
+        transform: rotateY(-180deg);
+      }
+      .sface {
+        position: absolute;
+        inset: 0;
+        background: var(--paper);
+        border-radius: var(--r);
+        padding: 24px 26px 42px;
+        overflow: hidden;
+        border: 1px solid rgba(100, 60, 38, 0.1);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        box-shadow: var(--shadow-page);
+      }
+      .sface.bk {
+        transform: rotateY(180deg);
+      }
+      .sface.cover-pg {
+        padding: 0;
+      }
+      .sface.back-pg {
+        padding: 0;
+      }
+
+      /* ── Tap zones ─────────────────────────────────────────── */
+      .tap {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 22%;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        z-index: 10;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .tap.tL {
+        left: 0;
+      }
+      .tap.tR {
+        right: 0;
+      }
+
+      /* ── Nav controls ──────────────────────────────────────── */
+      .nav-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .nav-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 1.5px solid var(--line);
+        background: rgba(255, 255, 255, 0.75);
+        color: var(--br);
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+        transition:
+          background 0.18s,
+          border-color 0.18s;
+        backdrop-filter: blur(8px);
+      }
+      .nav-btn:hover {
+        background: #fff;
+        border-color: var(--br-lt);
+      }
+      .nav-btn:disabled {
+        opacity: 0.32;
+        cursor: default;
+        pointer-events: none;
+      }
+      .page-counter {
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        min-width: 80px;
+        text-align: center;
+      }
+
+      /* ── Hint toast ────────────────────────────────────────── */
+      #hint {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(122, 62, 40, 0.15);
+        color: var(--br-dk);
+        padding: 8px 18px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        pointer-events: none;
+        transition: opacity 0.4s;
+        z-index: 100;
+        white-space: nowrap;
+      }
+      #hint.hide {
+        opacity: 0;
+      }
+
+      /* ── Page number ───────────────────────────────────────── */
+      .pgnum {
+        position: absolute;
+        bottom: 14px;
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        color: var(--br-lt);
+        font-variant-numeric: tabular-nums;
+      }
+      .L .pgnum,
+      .spg .pgnum,
+      .sface .pgnum {
+        left: 34px;
+      }
+      .R .pgnum,
+      .face.fv .pgnum {
+        right: 34px;
+      }
+
+      /* ══════════════════════════════════════════════════════════
+   PAGE CONTENT STYLES
+══════════════════════════════════════════════════════════ */
+      .eyebrow {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--br);
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+      .serif-h {
+        font-family: var(--serif);
+        font-weight: 500;
+        color: var(--br-dk);
+        line-height: 1.05;
+        letter-spacing: 0.01em;
+      }
+      .pg p,
+      .face p,
+      .spg p,
+      .sface p,
+      .content p {
+        line-height: 1.65;
+        color: var(--muted);
+        font-size: 12.5px;
+        margin-top: 8px;
+      }
+
+      /* Cover */
+      .cover-inner {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 28px 30px;
+        position: relative;
+        overflow: hidden;
+      }
+      .cover-bg {
+        position: absolute;
+        inset: 0;
+        background: url("Cover.png") center/cover no-repeat;
+        z-index: 0;
+      }
+      .cover-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          165deg,
+          rgba(122, 85, 60, 0.18) 0%,
+          rgba(245, 220, 200, 0.1) 45%,
+          rgba(40, 20, 10, 0.35) 100%
+        );
+        z-index: 1;
+      }
+      .cover-top {
+        position: relative;
+        z-index: 2;
+      }
+      .cover-wordmark {
+        font-family: var(--serif);
+        font-size: clamp(40px, 6vw, 80px);
+        line-height: 0.85;
+        letter-spacing: 0.08em;
+        color: #ff4a02;
+        font-weight: 500;
+      }
+      .cover-tagline {
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: rgba(0, 0, 0, 0.68);
+        margin-top: 10px;
+        font-weight: 600;
+      }
+      .cover-badge {
+        position: absolute;
+        z-index: 2;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        background: var(--br-lt);
+        color: #fff;
+        padding: 10px 20px 10px 14px;
+        font-family: var(--serif);
+        font-size: 16px;
+        letter-spacing: 0.08em;
+        box-shadow: -10px 10px 0 rgba(122, 62, 40, 0.3);
+      }
+      .cover-bottom {
+        position: relative;
+        z-index: 2;
+      }
+      .cover-year {
+        font-family: var(--serif);
+        font-size: clamp(36px, 5vw, 64px);
+        color: #ff6600;
+        line-height: 1;
+        font-style: italic;
+      }
+      .cover-sub {
+        font-size: 11px;
+        color: rgba(7, 7, 7, 0.7);
+        letter-spacing: 0.06em;
+        margin-top: 4px;
+      }
+
+      /* Back cover */
+      .back-inner {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 36px 34px;
+        position: relative;
+        overflow: hidden;
+      }
+      .back-bg {
+        position: absolute;
+        inset: 0;
+        background: url("Coverback.png") center/cover no-repeat;
+        z-index: 0;
+      }
+      .back-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          165deg,
+          rgba(80, 42, 24, 0.45) 0%,
+          rgba(120, 80, 55, 0.32) 45%,
+          rgba(28, 12, 6, 0.58) 100%
+        );
+        z-index: 1;
+      }
+      .back-content {
+        position: relative;
+        z-index: 2;
+        color: #fff;
+      }
+      .back-content h2 {
+        font-family: var(--serif);
+        font-size: 28px;
+        color: #fff;
+        margin-bottom: 6px;
+      }
+      .back-content p {
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 12.5px;
+      }
+      .contact-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 18px;
+      }
+      .c-item {
+        padding: 13px 14px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(8px);
+      }
+      .c-item b {
+        display: block;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #000000;
+        margin-bottom: 3px;
+      }
+      .c-item span {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      /* TOC */
+      .toc-list {
+        display: grid;
+        gap: 0;
+        margin-top: 16px;
+      }
+      .toc-row {
+        display: flex;
+        align-items: baseline;
+        gap: 0;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+        font-family: var(--serif);
+        font-size: 15px;
+        color: var(--br-dk);
+      }
+      .toc-row:last-child {
+        border-bottom: none;
+      }
+      .toc-dots {
+        flex: 1;
+        border-bottom: 1.5px dotted var(--line);
+        margin: 0 10px;
+        transform: translateY(-4px);
+      }
+      .toc-pg {
+        color: var(--br);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      /* Info grid */
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .info-card {
+        padding: 13px 14px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(255, 248, 240, 0.8);
+      }
+      .info-card b {
+        display: block;
+        font-size: 11px;
+        color: var(--br-dk);
+        margin-bottom: 4px;
+        letter-spacing: 0.04em;
+      }
+      .info-card span {
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      /* Split feature */
+      .split {
+        display: grid;
+        grid-template-columns: 0.9fr 1fr;
+        gap: 18px;
+        height: 100%;
+        align-items: center;
+      }
+      .feat-img {
+        height: calc(100% - 20px);
+        min-height: 440px;
+        border-radius: 6px;
+        background: url("Coverke2.png") center/cover no-repeat;
+        position: relative;
+        overflow: hidden;
+      }
+      .feat-img::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0.22), transparent 60%);
+      }
+
+      .sku {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid var(--line);
+        color: var(--br);
+        padding: 5px 11px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+      .price {
+        font-family: var(--serif);
+        color: var(--br);
+        font-size: 36px;
+        line-height: 1;
+        margin: 12px 0;
+      }
+      .detail-tbl {
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        padding: 12px 0;
+        display: grid;
+        gap: 7px;
+        margin: 14px 0;
+      }
+      .detail-tbl div {
+        display: grid;
+        grid-template-columns: 90px 1fr;
+        gap: 10px;
+        font-size: 11.5px;
+      }
+      .detail-tbl b {
+        color: var(--br-dk);
+      }
+      .detail-tbl span {
+        color: var(--muted);
+      }
+
+      /* Product grid */
+      .cat-hdr {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 10px;
+        margin-bottom: 12px;
+      }
+      .prod-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .prod-card {
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--line);
+      }
+      .prod-card img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 6px;
+        display: block;
+        margin-bottom: 7px;
+      }
+      .prod-card h3 {
+        font-family: var(--serif);
+        font-size: 14px;
+        color: var(--br-dk);
+        margin-bottom: 4px;
+      }
+      .prod-card p {
+        font-size: 10.5px;
+        line-height: 1.5;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .prod-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--br);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      /* Hot picks */
+      .hot-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .hot-card {
+        border-radius: 6px;
+        background: center/cover no-repeat;
+        min-height: 420px;
+        display: flex;
+        align-items: flex-end;
+        padding: 16px;
+        position: relative;
+        overflow: hidden;
+      }
+      .hot-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0.04),
+          rgba(70, 32, 14, 0.8)
+        );
+      }
+      .hot-card .rnd {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        z-index: 2;
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: #fff;
+        display: grid;
+        place-items: center;
+        font-family: var(--serif);
+        font-size: 12px;
+        color: var(--br);
+        line-height: 1.15;
+        text-align: center;
+      }
+      .hot-body {
+        position: relative;
+        z-index: 2;
+        color: #fff;
+      }
+      .hot-body h3 {
+        font-family: var(--serif);
+        font-size: 20px;
+        margin-bottom: 4px;
+      }
+      .hot-body p {
+        font-size: 10.5px;
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+      }
+
+      /* Promo */
+      .promo-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .promo-card {
+        position: relative;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--line);
+      }
+      .promo-card img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-bottom: 7px;
+      }
+      .promo-card h3 {
+        font-family: var(--serif);
+        font-size: 14px;
+        color: var(--br-dk);
+        margin-bottom: 3px;
+      }
+      .promo-card p {
+        font-size: 10.5px;
+        color: var(--muted);
+        line-height: 1.5;
+        margin-bottom: 5px;
+      }
+      .promo-meta {
+        color: var(--br);
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 6px 16px rgba(60, 24, 10, 0.18);
+        display: grid;
+        place-items: center;
+        text-align: center;
+        font-family: var(--serif);
+        font-size: 10px;
+        color: var(--br);
+        line-height: 1.1;
+      }
+
+      /* Size table */
+      .size-tbl {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 14px;
+        font-size: 12px;
+        overflow: hidden;
+        border-radius: 10px;
+      }
+      .size-tbl th {
+        background: var(--br);
+        color: #fff;
+        padding: 10px 8px;
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-align: center;
+      }
+      .size-tbl td {
+        padding: 10px 8px;
+        border: 1px solid var(--line);
+        text-align: center;
+        color: var(--muted);
+      }
+      .size-tbl td:first-child {
+        color: var(--br-dk);
+        font-weight: 700;
+      }
+      .size-tbl tr:nth-child(even) td {
+        background: rgba(255, 245, 238, 0.6);
+      }
+
+      /* ── Responsive ─────────────────────────────────────────── */
+      @media (max-width: 720px) {
+        #book-desk {
+          display: none;
+        }
+        #book-mob {
+          display: block;
+        }
+        .split {
+          grid-template-columns: 1fr;
+        }
+        .feat-img {
+          min-height: 200px;
+          height: 200px;
+        }
+        .hot-grid,
+        .promo-grid,
+        .prod-grid,
+        .info-grid,
+        .contact-grid {
+          grid-template-columns: 1fr;
+        }
+        .hot-card {
+          min-height: 260px;
+        }
+        .cat-hdr {
+          flex-direction: column;
+        }
+      }
+      @media (max-width: 480px) {
+        .brand-bar .logo-text {
+          font-size: 18px;
+        }
+        .spg,
+        .sface {
+          padding: 18px 18px 40px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .flipper,
+        .sflipper {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <!-- Brand bar -->
+      <div class="brand-bar">
+        <span class="logo-text">YUURECO</span>
+        <div class="divider"></div>
+        <span class="sub">Product Catalogue 2026</span>
+      </div>
+
+      <!-- Desktop book -->
+      <div id="book-wrap">
+        <div id="book-desk">
+          <div class="spine-glow"></div>
+          <!-- Static pages -->
+          <article class="pg L" id="dL"></article>
+          <article class="pg R" id="dR"></article>
+          <!-- Flippers -->
+          <div class="flipper fR" id="fR">
+            <div class="face fv" id="fRv"></div>
+            <div class="face bk" id="fRb"></div>
+          </div>
+          <div class="flipper fL" id="fL">
+            <div class="face fv" id="fLv"></div>
+            <div class="face bk" id="fLb"></div>
+          </div>
+          <button
+            class="tap tL"
+            id="dPrev"
+            aria-label="Halaman sebelumnya"
+          ></button>
+          <button
+            class="tap tR"
+            id="dNext"
+            aria-label="Halaman berikutnya"
+          ></button>
+        </div>
+
+        <!-- Mobile book -->
+        <div id="book-mob">
+          <article class="spg" id="mS"></article>
+          <div class="sflipper" id="mF">
+            <div class="sface fv" id="mFv"></div>
+            <div class="sface bk" id="mFb"></div>
+          </div>
+          <button
+            class="tap tL"
+            id="mPrev"
+            aria-label="Halaman sebelumnya"
+          ></button>
+          <button
+            class="tap tR"
+            id="mNext"
+            aria-label="Halaman berikutnya"
+          ></button>
+        </div>
+      </div>
+
+      <!-- Nav controls -->
+      <div class="nav-row">
+        <button class="nav-btn" id="navPrev" aria-label="Sebelumnya">
+          &#8592;
+        </button>
+        <span class="page-counter" id="counter"></span>
+        <button class="nav-btn" id="navNext" aria-label="Berikutnya">
+          &#8594;
+        </button>
+      </div>
+    </div>
+    <!-- /stage -->
+
+    <div id="hint">Ketuk sisi kanan/kiri atau geser untuk membalik halaman</div>
+
+    <script>
+      /* ── Page content ─────────────────────────────────────── */
+      const pages = [
+        /* 0 – COVER */
+        `<div class="cover-inner">
+  <div class="cover-bg"></div>
+  <div class="cover-overlay"></div>
+  <div class="cover-top">
+    <div class="cover-wordmark">YUURECO</div>
+    <div class="cover-tagline">Premium Pillow Collection</div>
+  </div>
+  <div class="cover-badge">CATALOGUE</div>
+  <div class="cover-bottom">
+    <div class="cover-year">2026</div>
+    <div class="cover-sub">Sleep Better · Live Better · YUURECO</div>
+  </div>
+</div>`,
+
+        /* 1 – TOC */
+        `<div class="eyebrow">Di dalam katalog ini</div>
+<h2 class="serif-h" style="font-size:28px;margin-bottom:4px">Daftar Isi</h2>
+<p style="margin-bottom:4px">Navigasi koleksi terbaik YUURECO untuk tahun 2026.</p>
+<div class="toc-list">
+  <div class="toc-row"><span>Tentang Kami</span><div class="toc-dots"></div><span class="toc-pg">02</span></div>
+  <div class="toc-row"><span>Koleksi Bantal Premium</span><div class="toc-dots"></div><span class="toc-pg">04</span></div>
+  <div class="toc-row"><span>Pilihan Terlaris</span><div class="toc-dots"></div><span class="toc-pg">05</span></div>
+  <div class="toc-row"><span>Promo Spesial</span><div class="toc-dots"></div><span class="toc-pg">06</span></div>
+  <div class="toc-row"><span>Produk Dekorasi</span><div class="toc-dots"></div><span class="toc-pg">07</span></div>
+  <div class="toc-row"><span>Panduan Ukuran</span><div class="toc-dots"></div><span class="toc-pg">08</span></div>
+</div>
+<div class="pgnum">01</div>`,
+
+        /* 2 – ABOUT */
+        `<div class="eyebrow">Tentang Brand Kami</div>
+<h2 class="serif-h" style="font-size:26px;margin-bottom:8px">Sleep Better,<br>Live Better.</h2>
+<p>YUURECO adalah brand bantal premium Indonesia yang menggabungkan teknologi pengisian terkini dengan bahan pilihan untuk menghadirkan kualitas tidur terbaik setiap malam.</p>
+<div class="info-grid">
+  <div class="info-card"><b>Keunggulan</b><span>Memory foam premium & microfiber, antibakteri, dan hipoalergenik.</span></div>
+  <div class="info-card"><b>Koleksi</b><span>Bantal tidur, bantal dekoratif, guling panjang, dan bantal bayi.</span></div>
+  <div class="info-card"><b>Pelanggan</b><span>Cocok untuk semua usia, tersedia di seluruh Indonesia.</span></div>
+  <div class="info-card"><b>Garansi</b><span>Garansi 1 tahun untuk setiap produk YUURECO resmi.</span></div>
+</div>
+<div class="pgnum">02</div>`,
+
+        /* 3 – FEATURED PRODUCT */
+        `<div class="split">
+  <div class="feat-img"></div>
+  <div class="feat-body">
+    <div class="sku">&#9632; Code YR-301</div>
+    <h2 class="serif-h" style="font-size:22px;margin-bottom:8px">CloudDream<br>Memory Foam Pillow</h2>
+    <p>Bantal memory foam ergonomis yang menyesuaikan bentuk kepala dan leher secara alami. Ideal untuk semua posisi tidur.</p>
+    <div class="price">IDR 345.999</div>
+    <div class="detail-tbl">
+      <div><b>Warna</b><span>Putih, Abu, Krem, Navy, Sage Green</span></div>
+      <div><b>Ukuran</b><span>45×70 · 50×70 · 50×90 cm</span></div>
+      <div><b>Material</b><span>CertiPUR-US® Memory Foam, Cover 300TC Cotton</span></div>
+    </div>
+  </div>
+</div>
+<div class="pgnum">03</div>`,
+
+        /* 4 – PRODUCT GRID */
+        `<div class="cat-hdr">
+  <div>
+    <div class="eyebrow">Pilihan Unggulan</div>
+    <h2 class="serif-h" style="font-size:22px">Bantal Premium</h2>
+  </div>
+  <span class="sku">Koleksi 2026</span>
+</div>
+<div class="prod-grid">
+  <div class="prod-card">
+    <img src="bantal_card.png" alt="SoftCloud Microfiber">
+    <h3>SoftCloud Microfiber</h3>
+    <p>Microfiber ultra-lembut, ringan dan nyaman sepanjang malam.</p>
+    <div class="prod-meta"><span>IDR 106.999</span></div>
+  </div>
+  <div class="prod-card">
+    <img src="bantal_card1.png" alt="Splendor Series">
+    <h3>Splendor Series</h3>
+    <p>Latex alami, sirkulasi udara baik, tahan tungau dan jamur.</p>
+    <div class="prod-meta"><span>IDR 160.999</span></div>
+  </div>
+  <div class="prod-card">
+    <img src="bantal_card2.png" alt="Premium Series">
+    <h3>Premium Series</h3>
+    <p>Isian buckwheat organik untuk tidur segar dan leher terdukung.</p>
+    <div class="prod-meta"><span>IDR 40.999</span></div>
+  </div>
+  <div class="prod-card">
+    <img src="bantal_card3.png" alt="Dacron Pillow">
+    <h3>Dacron Pillow</h3>
+    <p>Teknologi cooling gel membantu menjaga suhu tubuh tetap sejuk.</p>
+    <div class="prod-meta"><span>IDR 36.999</span></div>
+  </div>
+</div>
+<div class="pgnum">04</div>`,
+
+        /* 5 – HOT PICKS */
+        `<div class="eyebrow">Favorit Pelanggan</div>
+<h2 class="serif-h" style="font-size:26px;margin-bottom:4px">Pilihan Terlaris</h2>
+<p>Dua produk dengan rating tertinggi dan penjualan terbanyak.</p>
+<div class="hot-grid">
+  <div class="hot-card" style="background-image:url('Catalog1.png')">
+    <div class="rnd">Rp<br>189k</div>
+    <div class="hot-body"><h3>SoftCloud Microfiber</h3><p>Best seller – lembut, ringan, harga terjangkau.</p></div>
+  </div>
+  <div class="hot-card" style="background-image:url('Catalog2.png')">
+    <div class="rnd">Rp<br>180k</div>
+    <div class="hot-body"><h3>CloudDream Memory Foam</h3><p>Rating ⭐ 4.9 — pilihan No.1 tidur premium.</p></div>
+  </div>
+</div>
+<div class="pgnum">05</div>`,
+
+        /* 6 – PROMO */
+        `<div class="eyebrow">Penawaran Spesial</div>
+<h2 class="serif-h" style="font-size:26px;margin-bottom:4px">Promo Spesial</h2>
+<p>Hemat hingga 30% untuk produk pilihan. Stok terbatas!</p>
+<div class="promo-grid">
+  <div class="promo-card">
+    <span class="badge">SAVE<br>30%</span>
+    <img src="diskon.png" alt="Couple Set">
+    <h3>Paket Couple Set</h3>
+    <p>2 bantal SoftCloud dalam satu paket hemat.</p>
+    <div class="promo-meta"><s style="color:var(--muted);font-weight:400">Rp378k</s> Rp265k</div>
+  </div>
+  <div class="promo-card">
+    <span class="badge">SAVE<br>30%</span>
+    <img src="diskon2.png" alt="Pillowcase 2-Pack">
+    <h3>Pillowcase 2-Pack</h3>
+    <p>Katun 400TC, anti-kusut, 8 pilihan warna.</p>
+    <div class="promo-meta"><s style="color:var(--muted);font-weight:400">Rp220k</s> Rp154k</div>
+  </div>
+  <div class="promo-card">
+    <span class="badge">SAVE<br>30%</span>
+    <img src="diskon3.png" alt="CloudDream XL">
+    <h3>CloudDream XL</h3>
+    <p>Versi 50×90cm memory foam, tidur ekstra luas.</p>
+    <div class="promo-meta"><s style="color:var(--muted);font-weight:400">Rp510k</s> Rp357k</div>
+  </div>
+  <div class="promo-card">
+    <span class="badge">SAVE<br>30%</span>
+    <img src="diskon4.png" alt="BodyHug Pillow">
+    <h3>BodyHug Pillow</h3>
+    <p>Bantal premium, ideal untuk kehamilan & tidur miring.</p>
+    <div class="promo-meta"><s style="color:var(--muted);font-weight:400">Rp450k</s> Rp315k</div>
+  </div>
+</div>
+<div class="pgnum">06</div>`,
+
+        /* 7 – DECORATIVE */
+        `<div class="cat-hdr">
+  <div>
+    <div class="eyebrow">Interior Essentials</div>
+    <h2 class="serif-h" style="font-size:22px">Produk Dekorasi</h2>
+  </div>
+  <span class="sku">Shop the Look</span>
+</div>
+<div class="prod-grid">
+  <div class="prod-card">
+    <img src="bantal_kids.png" alt="Nordic Linen">
+    <h3>Nordic Linen Cushion</h3>
+    <p>Sarung linen minimalis untuk sofa & kursi ruang tamu.</p>
+    <div class="prod-meta"><span>Rp 129.000</span></div>
+  </div>
+  <div class="prod-card">
+    <img src="guling1.png" alt="Bohemian Knit">
+    <h3>Bohemian Knit Pillow</h3>
+    <p>Bantal rajut boho dengan tekstur unik dan estetik.</p>
+    <div class="prod-meta"><span>Rp 149.000</span></div>
+  </div>
+  <div class="prod-card">
+    <img src="guling2.png" alt="Luxe Velvet">
+    <h3>Luxe Velvet Cushion</h3>
+    <p>Velvet premium dengan isian bulu angsa, mewah dan elegan.</p>
+    <div class="prod-meta"><span>Rp 199.000</span></div>
+  </div>
+  <div class="prod-card">
+    <img src="guling3.png" alt="KidsDream">
+    <h3>KidsDream Animal Pillow</h3>
+    <p>Bantal karakter hypoallergenic untuk si kecil, aman & washable.</p>
+    <div class="prod-meta"><span>Rp 89.000</span></div>
+  </div>
+</div>
+<div class="pgnum">07</div>`,
+
+        /* 8 – SIZE GUIDE */
+        `<div class="eyebrow">Panduan Pemilihan</div>
+<h2 class="serif-h" style="font-size:26px;margin-bottom:4px">Panduan Ukuran Bantal</h2>
+<p>Pilih ukuran yang sesuai kasur dan kebutuhan tidurmu. Semua dimensi dalam sentimeter.</p>
+<table class="size-tbl">
+  <thead>
+    <tr><th>Tipe</th><th>P</th><th>L</th><th>T</th><th>Cocok untuk</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Standard</td><td>45</td><td>65</td><td>12</td><td>Single/Twin</td></tr>
+    <tr><td>Queen</td><td>50</td><td>70</td><td>14</td><td>Queen</td></tr>
+    <tr><td>King</td><td>50</td><td>90</td><td>14</td><td>King</td></tr>
+    <tr><td>Body Hug</td><td>150</td><td>40</td><td>20</td><td>Semua</td></tr>
+    <tr><td>Baby</td><td>30</td><td>45</td><td>8</td><td>Baby Crib</td></tr>
+  </tbody>
+</table>
+<div class="info-grid" style="margin-top:12px">
+  <div class="info-card"><b>Pilihan Warna</b><span>Putih, krem, abu-abu, navy, sage green, dusty pink.</span></div>
+  <div class="info-card"><b>Catatan</b><span>Semua ukuran tersedia dalam memory foam, microfiber, dan latex.</span></div>
+</div>
+<div class="pgnum">08</div>`,
+
+        /* 9 – BACK COVER */
+        `<div class="back-inner">
+  <div class="back-bg"></div>
+  <div class="back-overlay"></div>
+
+  <div class="back-content">
+
+    <div class="eyebrow" style="color:var(--br-lt)">Hubungi Kami</div>
+    <h2>Terima Kasih</h2>
+
+    <p>
+      Hubungi kami untuk pemesanan, program reseller,
+      atau pertanyaan seputar produk YUURECO.
+    </p>
+
+    <div class="contact-grid">
+      <div class="c-item">
+        <b>Website</b>
+        <span>www.yuureco.id</span>
+      </div>
+
+      <div class="c-item">
+        <b>Email</b>
+        <span>hello@yuureco.id</span>
+      </div>
+
+      <div class="c-item">
+        <b>Instagram</b>
+        <span>@yuureco.official</span>
+      </div>
+
+      <div class="c-item">
+        <b>WhatsApp</b>
+        <span>+62 812-0000-0000</span>
+      </div>
+    </div>
+
+    <!-- PEMESANAN ONLINE -->
+    <div style="
+      margin-top:25px;
+      padding:18px;
+      background:rgba(255,255,255,.12);
+      border-radius:14px;
+      text-align:center;
+      border:1px solid rgba(255,255,255,.18);
+    ">
+
+      <h3 style="
+        color:white;
+        margin-bottom:10px;
+        font-family:Georgia,serif;
+        font-size:22px;
+      ">
+        Pemesanan Online
+      </h3>
+
+      <p style="
+        color:rgba(255,255,255,.75);
+        margin-bottom:15px;
+        font-size:12px;
+      ">
+        Scan barcode berikut untuk melakukan pemesanan secara online
+      </p>
+
+      <img src="barcode.png"
+           alt="QR Pemesanan"
+           style="
+             width:140px;
+             height:140px;
+             background:white;
+             padding:8px;
+             border-radius:10px;
+           ">
+
+      <p style="
+        margin-top:10px;
+        font-size:11px;
+        color:#f5d5c2;
+      ">
+        Scan → Order → Checkout
+      </p>
+
+    </div>
+
+  </div>
+</div>`,
+      ];
+
+      /* ── Spread map: [left-page, right-page] ─────────────── */
+      /* null = blank/decorative end page */
+      const spreads = [
+        [null, 0], // spread 0: cover
+        [1, 2], // spread 1
+        [3, 4], // spread 2
+        [5, 6], // spread 3
+        [7, 8], // spread 4
+        [9, null], // spread 5: back cover
+      ];
+
+      /* ── DOM refs ─────────────────────────────────────────── */
+      const dL = document.getElementById("dL");
+      const dR = document.getElementById("dR");
+      const fR = document.getElementById("fR");
+      const fL = document.getElementById("fL");
+      const fRv = document.getElementById("fRv");
+      const fRb = document.getElementById("fRb");
+      const fLv = document.getElementById("fLv");
+      const fLb = document.getElementById("fLb");
+      const mS = document.getElementById("mS");
+      const mF = document.getElementById("mF");
+      const mFv = document.getElementById("mFv");
+      const mFb = document.getElementById("mFb");
+      const hintEl = document.getElementById("hint");
+      const counter = document.getElementById("counter");
+      const navPrev = document.getElementById("navPrev");
+      const navNext = document.getElementById("navNext");
+
+      let dIdx = 0,
+        mIdx = 0,
+        busy = false;
+      const MOBILE_BP = 720;
+
+      function isMob() {
+        return window.innerWidth <= MOBILE_BP;
+      }
+
+      /* ── Helpers ─────────────────────────────────────────── */
+      function fill(el, pi, cls) {
+        el.className = cls;
+        if (pi === null || pi === undefined) {
+          el.classList.add("empty");
+          el.innerHTML = "<span>YUURECO</span>";
+          return;
+        }
+        if (pi === 0) el.classList.add("cover-pg");
+        if (pi === 9) el.classList.add("back-pg");
+        el.innerHTML = pages[pi];
+      }
+      function showHint(t) {
+        hintEl.textContent = t;
+        hintEl.classList.remove("hide");
+        clearTimeout(showHint._t);
+        showHint._t = setTimeout(() => hintEl.classList.add("hide"), 2200);
+      }
+      function updateNav() {
+        if (isMob()) {
+          navPrev.disabled = mIdx <= 0;
+          navNext.disabled = mIdx >= pages.length - 1;
+          counter.textContent = `Halaman ${mIdx + 1} / ${pages.length}`;
+        } else {
+          navPrev.disabled = dIdx <= 0;
+          navNext.disabled = dIdx >= spreads.length - 1;
+          counter.textContent = `Spread ${dIdx + 1} / ${spreads.length}`;
+        }
+      }
+
+      /* ── Easing ──────────────────────────────────────────── */
+      function ease(t) {
+        /* smooth stop */
+        return t < 0.5
+          ? 4 * t * t * t
+          : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+      }
+
+      /* ── Animation engine ────────────────────────────────── */
+      function animate(dur, cb) {
+        return new Promise((res) => {
+          const s = performance.now();
+          function f(now) {
+            const p = Math.min((now - s) / dur, 1);
+            cb(ease(p));
+            p < 1 ? requestAnimationFrame(f) : res();
+          }
+          requestAnimationFrame(f);
+        });
+      }
+
+      /* ── Desktop flip forward (right page turns) ─────────── */
+      async function flipDesktopNext() {
+        if (busy || dIdx >= spreads.length - 1) return;
+        busy = true;
+        const cur = spreads[dIdx],
+          nxt = spreads[dIdx + 1];
+        /* show static: old left + new right */
+        fill(dL, cur[0], "pg L");
+        fill(dR, nxt[1], "pg R");
+        /* flipper faces: front=old right, back=new left */
+        fill(fRv, cur[1], "face fv");
+        fill(fRb, nxt[0], "face bk");
+        fR.className = "flipper fR on";
+        await animate(950, (p) => {
+          const a = p * -180;
+          const lift = Math.sin(Math.PI * p) * 22;
+          fR.style.transform = `translate3d(0,0,${lift}px) rotateY(${a}deg)`;
+          fR.style.filter = `brightness(${1 - Math.sin(Math.PI * p) * 0.09})`;
+        });
+        fR.style.transform = "";
+        fR.style.filter = "";
+        fR.className = "flipper fR";
+        dIdx++;
+        fill(dL, spreads[dIdx][0], "pg L");
+        fill(dR, spreads[dIdx][1], "pg R");
+        updateNav();
+        busy = false;
+      }
+
+      /* ── Desktop flip backward (left page turns) ────────── */
+      async function flipDesktopPrev() {
+        if (busy || dIdx <= 0) return;
+        busy = true;
+        const prv = spreads[dIdx - 1],
+          cur = spreads[dIdx];
+        fill(dL, prv[0], "pg L");
+        fill(dR, cur[1], "pg R");
+        fill(fLv, prv[1], "face fv");
+        fill(fLb, cur[0], "face bk");
+        fL.className = "flipper fL on";
+        fL.style.transform = "rotateY(-180deg)";
+        await animate(950, (p) => {
+          const a = -180 + p * 180;
+          const lift = Math.sin(Math.PI * p) * 22;
+          fL.style.transform = `translate3d(0,0,${lift}px) rotateY(${a}deg)`;
+          fL.style.filter = `brightness(${1 - Math.sin(Math.PI * p) * 0.09})`;
+        });
+        fL.style.transform = "";
+        fL.style.filter = "";
+        fL.className = "flipper fL";
+        dIdx--;
+        fill(dL, spreads[dIdx][0], "pg L");
+        fill(dR, spreads[dIdx][1], "pg R");
+        updateNav();
+        busy = false;
+      }
+
+      /* ── Mobile flip forward ─────────────────────────────── */
+      async function flipMobNext() {
+        if (busy || mIdx >= pages.length - 1) return;
+        busy = true;
+        fill(mS, mIdx + 1, "spg");
+        fill(mFv, mIdx, "sface fv");
+        fill(mFb, mIdx + 1, "sface bk");
+        mF.style.transform = "rotateY(0deg)";
+        mF.className = "sflipper fwd on";
+        await animate(950, (p) => {
+          const a = p * -180;
+          const lift = Math.sin(Math.PI * p) * 18;
+          mF.style.transform = `translate3d(0,0,${lift}px) rotateY(${a}deg)`;
+          mF.style.filter = `brightness(${1 - Math.sin(Math.PI * p) * 0.08})`;
+        });
+        mF.style.transform = "";
+        mF.style.filter = "";
+        mF.className = "sflipper";
+        mIdx++;
+        fill(mS, mIdx, "spg");
+        updateNav();
+        busy = false;
+      }
+
+      /* ── Mobile flip backward ────────────────────────────── */
+      async function flipMobPrev() {
+        if (busy || mIdx <= 0) return;
+        busy = true;
+        fill(mS, mIdx - 1, "spg");
+        fill(mFv, mIdx - 1, "sface fv");
+        fill(mFb, mIdx, "sface bk");
+        mF.style.transform = "rotateY(-180deg)";
+        mF.className = "sflipper bwd on";
+        await animate(950, (p) => {
+          const a = -180 + p * 180;
+          const lift = Math.sin(Math.PI * p) * 18;
+          mF.style.transform = `translate3d(0,0,${lift}px) rotateY(${a}deg)`;
+          mF.style.filter = `brightness(${1 - Math.sin(Math.PI * p) * 0.08})`;
+        });
+        mF.style.transform = "";
+        mF.style.filter = "";
+        mF.className = "sflipper";
+        mIdx--;
+        fill(mS, mIdx, "spg");
+        updateNav();
+        busy = false;
+      }
+
+      /* ── Unified next/prev ───────────────────────────────── */
+      function next() {
+        isMob() ? flipMobNext() : flipDesktopNext();
+      }
+      function prev() {
+        isMob() ? flipMobPrev() : flipDesktopPrev();
+      }
+
+      /* ── Button events ───────────────────────────────────── */
+      document
+        .getElementById("dNext")
+        .addEventListener("click", flipDesktopNext);
+      document
+        .getElementById("dPrev")
+        .addEventListener("click", flipDesktopPrev);
+      document.getElementById("mNext").addEventListener("click", flipMobNext);
+      document.getElementById("mPrev").addEventListener("click", flipMobPrev);
+      navNext.addEventListener("click", next);
+      navPrev.addEventListener("click", prev);
+
+      /* ── Keyboard ────────────────────────────────────────── */
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" || e.key === "PageDown") next();
+        if (e.key === "ArrowLeft" || e.key === "PageUp") prev();
+      });
+
+      /* ── Touch / drag swipe ─────────────────────────────── */
+      function bindSwipe(el) {
+        let sx = 0,
+          sy = 0,
+          active = false;
+        el.addEventListener(
+          "touchstart",
+          (e) => {
+            sx = e.touches[0].clientX;
+            sy = e.touches[0].clientY;
+            active = true;
+          },
+          { passive: true },
+        );
+        el.addEventListener("touchend", (e) => {
+          if (!active) return;
+          active = false;
+          const dx = e.changedTouches[0].clientX - sx;
+          const dy = e.changedTouches[0].clientY - sy;
+          if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+            dx < 0 ? next() : prev();
+          }
+        });
+      }
+      bindSwipe(document.getElementById("book-desk"));
+      bindSwipe(document.getElementById("book-mob"));
+
+      /* ── Resize: sync mode ───────────────────────────────── */
+      function syncMode() {
+        if (busy) return;
+        if (isMob()) {
+          // derive mIdx from dIdx
+          const s = spreads[dIdx];
+          mIdx = s[1] !== null ? s[1] : s[0] !== null ? s[0] : 0;
+          fill(mS, mIdx, "spg");
+        } else {
+          // derive dIdx from mIdx
+          dIdx = spreads.findIndex((s) => s[0] === mIdx || s[1] === mIdx);
+          if (dIdx < 0) dIdx = Math.floor(mIdx / 2);
+          fill(dL, spreads[dIdx][0], "pg L");
+          fill(dR, spreads[dIdx][1], "pg R");
+        }
+        updateNav();
+      }
+      let rto;
+      window.addEventListener("resize", () => {
+        clearTimeout(rto);
+        rto = setTimeout(syncMode, 100);
+      });
+
+      /* ── Init ────────────────────────────────────────────── */
+      (function init() {
+        fill(dL, spreads[0][0], "pg L");
+        fill(dR, spreads[0][1], "pg R");
+        fill(mS, 0, "spg");
+        updateNav();
+        showHint("Ketuk tepi halaman atau gunakan tombol panah");
+      })();
+    </script>
+  </body>
+</html>
