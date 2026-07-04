@@ -236,7 +236,10 @@
       .spg.cover-pg,
       .spg.back-pg {
         padding: 0;
-        overflow-y: hidden;
+        /* FIX: jangan matikan scroll di sini — konten cover/back kadang
+           lebih tinggi dari frame tetap (mis. foto QR code di halaman
+           terakhir). Biarkan mewarisi overflow-y:auto dari .spg supaya
+           tidak ada bagian yang terpotong, dan tetap bisa discroll. */
       }
 
       /* flipper overlay — absolute over .spg */
