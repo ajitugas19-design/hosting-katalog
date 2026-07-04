@@ -16,6 +16,11 @@
         --bg-from: #f5ece2;
         --bg-to: #ede0d4;
         --r: 14px;
+        /* Tinggi tetap untuk setiap "kartu"/halaman buku di HP.
+           Semua halaman memakai tinggi yang sama persis (nilai ini tidak
+           berubah antar halaman), tapi tetap menyesuaikan tinggi layar
+           HP yang pendek agar tidak terpotong di luar viewport. */
+        --mobile-page-h: min(640px, 78dvh);
         --serif: "Georgia", "Times New Roman", serif;
         --sans:
           Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -211,15 +216,19 @@
         background: var(--paper);
         border-radius: var(--r);
         padding: 22px 20px 40px;
-        overflow: hidden;
         border: 1px solid rgba(100, 60, 38, 0.1);
         box-shadow: 0 12px 40px rgba(60, 28, 14, 0.16);
-        min-height: 0;
+        /* FIX: tinggi tetap (bukan auto), sama persis di semua halaman,
+           konten yang lebih panjang akan discroll di dalam card, bukan
+           mengubah ukuran card. */
+        height: var(--mobile-page-h);
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
       }
       .spg.empty {
         display: grid;
         place-items: center;
-        min-height: 320px;
         font-family: var(--serif);
         font-size: 22px;
         color: var(--line);
@@ -227,7 +236,7 @@
       .spg.cover-pg,
       .spg.back-pg {
         padding: 0;
-        min-height: 480px;
+        overflow-y: hidden;
       }
 
       /* flipper overlay — absolute over .spg */
@@ -407,7 +416,7 @@
       .cover-bg {
         position: absolute;
         inset: 0;
-        background: url("Cover.png") center/cover no-repeat;
+        background: url("cover.png") center/cover no-repeat;
         z-index: 0;
       }
       .cover-overlay {
@@ -673,9 +682,15 @@
       .prod-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
+        grid-auto-rows: 1fr;
         gap: 10px;
       }
       .prod-card {
+        /* FIX: layout kolom + tinggi 100% agar semua card di grid yang
+           sama punya ukuran seragam, apa pun panjang teksnya. */
+        display: flex;
+        flex-direction: column;
+        height: 100%;
         padding-bottom: 10px;
         border-bottom: 1px solid var(--line);
       }
@@ -692,6 +707,10 @@
         font-size: 13px;
         color: var(--br-dk);
         margin-bottom: 3px;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
       .prod-card p {
         font-size: 10px;
@@ -699,6 +718,11 @@
         color: var(--muted);
         margin-bottom: 5px;
         margin-top: 0;
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
       .prod-meta {
         display: flex;
@@ -707,6 +731,7 @@
         color: var(--br);
         font-size: 11px;
         font-weight: 800;
+        margin-top: auto;
       }
 
       /* Hot picks */
@@ -773,10 +798,14 @@
       .promo-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
+        grid-auto-rows: 1fr;
         gap: 10px;
       }
       .promo-card {
         position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
         padding-bottom: 10px;
         border-bottom: 1px solid var(--line);
       }
@@ -792,6 +821,10 @@
         font-size: 13px;
         color: var(--br-dk);
         margin-bottom: 3px;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
       .promo-card p {
         font-size: 10px;
@@ -799,11 +832,17 @@
         line-height: 1.45;
         margin-bottom: 4px;
         margin-top: 0;
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
       .promo-meta {
         color: var(--br);
         font-size: 11px;
         font-weight: 800;
+        margin-top: auto;
       }
       .badge {
         position: absolute;
@@ -895,6 +934,9 @@
       }
 
       @media (max-width: 380px) {
+        :root {
+          --mobile-page-h: min(560px, 74dvh);
+        }
         .prod-grid,
         .promo-grid,
         .hot-grid,
@@ -1066,7 +1108,7 @@
 <div class="promo-grid">
   <div class="promo-card"><span class="badge">SAVE<br>30%</span><img src="diskon.png" alt="Couple Set"><h3>Paket Couple Set</h3><p>2 bantal SoftCloud dalam satu paket hemat.</p><div class="promo-meta"><s style="color:var(--muted);font-weight:400">Rp378k</s> Rp265k</div></div>
   <div class="promo-card"><span class="badge">SAVE<br>30%</span><img src="diskon2.png" alt="Pillowcase 2-Pack"><h3>Pillowcase 2-Pack</h3><p>Katun 400TC, anti-kusut, 8 pilihan warna.</p><div class="promo-meta"><s style="color:var(--muted);font-weight:400">Rp220k</s> Rp154k</div></div>
-  <div class="promo-card"><span class="badge">SAVE<br>30%</span><img src="diskon3.png" alt="CloudDream XL"><h3>CloudDream XL</h3><p>Versi 50×90cm memory foam.</p><div class="promo-meta"><s style="color:var(--muted);font-weight:400">Rp510k</s> Rp357k</div></div>
+  <div class="promo-card"><span class="badge">SAVE<br>30%</span><img src="Diskon3.png" alt="CloudDream XL"><h3>CloudDream XL</h3><p>Versi 50×90cm memory foam.</p><div class="promo-meta"><s style="color:var(--muted);font-weight:400">Rp510k</s> Rp357k</div></div>
   <div class="promo-card"><span class="badge">SAVE<br>30%</span><img src="diskon4.png" alt="BodyHug Pillow"><h3>BodyHug Pillow</h3><p>Ideal untuk kehamilan & tidur miring.</p><div class="promo-meta"><s style="color:var(--muted);font-weight:400">Rp450k</s> Rp315k</div></div>
 </div>
 <div class="pgnum">06</div>`,
