@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
@@ -73,6 +73,46 @@
         letter-spacing: 0.12em;
         text-transform: uppercase;
         color: var(--muted);
+      }
+
+      .top-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        max-width: 960px;
+      }
+
+      .lang-switch {
+        display: flex;
+        border: 1.5px solid var(--line);
+        border-radius: 999px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(8px);
+        flex-shrink: 0;
+      }
+      .lang-btn {
+        border: 0;
+        background: transparent;
+        padding: 6px 14px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        cursor: pointer;
+        font-family: var(--sans);
+        transition:
+          background 0.18s,
+          color 0.18s;
+      }
+      .lang-btn:hover {
+        color: var(--br-dk);
+      }
+      .lang-btn.active {
+        background: var(--br);
+        color: #fff;
       }
 
       #book-wrap {
@@ -961,14 +1001,39 @@
           transition: none !important;
         }
       }
+
+      /* Compatibility: standard line-clamp */
+      .prod-card h3,
+      .promo-card h3 {
+        line-clamp: 1;
+        -webkit-line-clamp: 1;
+      }
+      .prod-card p,
+      .promo-card p {
+        line-clamp: 2;
+        -webkit-line-clamp: 2;
+      }
     </style>
   </head>
   <body>
     <div id="stage">
-      <div class="brand-bar">
-        <span class="logo-text">YUURECO</span>
-        <div class="divider"></div>
-        <span class="sub">Product Catalogue 2026</span>
+      <div class="top-row">
+        <div class="brand-bar">
+          <span class="logo-text">YUURECO</span>
+          <div class="divider"></div>
+          <span class="sub" id="subLabel">Product Catalogue 2026</span>
+        </div>
+        <div
+          class="lang-switch"
+          id="langSwitch"
+          role="group"
+          aria-label="Language / Bahasa"
+        >
+          <button type="button" class="lang-btn active" data-lang="en">
+            EN
+          </button>
+          <button type="button" class="lang-btn" data-lang="id">ID</button>
+        </div>
       </div>
 
       <div id="book-wrap">
@@ -985,16 +1050,8 @@
             <div class="face fv" id="fLv"></div>
             <div class="face bk" id="fLb"></div>
           </div>
-          <button
-            class="tap tL"
-            id="dPrev"
-            aria-label="Halaman sebelumnya"
-          ></button>
-          <button
-            class="tap tR"
-            id="dNext"
-            aria-label="Halaman berikutnya"
-          ></button>
+          <button class="tap tL" id="dPrev" aria-label="Previous page"></button>
+          <button class="tap tR" id="dNext" aria-label="Next page"></button>
         </div>
 
         <!-- Mobile — wrap flipper inside relative container -->
@@ -1006,16 +1063,8 @@
               <div class="sface bk" id="mFb"></div>
             </div>
           </div>
-          <button
-            class="tap tL"
-            id="mPrev"
-            aria-label="Halaman sebelumnya"
-          ></button>
-          <button
-            class="tap tR"
-            id="mNext"
-            aria-label="Halaman berikutnya"
-          ></button>
+          <button class="tap tL" id="mPrev" aria-label="Previous page"></button>
+          <button class="tap tR" id="mNext" aria-label="Next page"></button>
         </div>
       </div>
 
@@ -1026,10 +1075,10 @@
       </div>
     </div>
 
-    <div id="hint">Ketuk tepi kiri/kanan untuk berpindah halaman</div>
+    <div id="hint">Tap the left/right edge to turn the page</div>
 
     <script>
-      const pages = [
+      const pagesID = [
         /* 0 COVER */
         `<div class="cover-inner">
   <div class="cover-bg"></div><div class="cover-overlay"></div>
@@ -1169,6 +1218,146 @@
 </div>`,
       ];
 
+      const pagesEN = [
+        /* 0 COVER */
+        `<div class="cover-inner">
+  <div class="cover-bg"></div><div class="cover-overlay"></div>
+  <div class="cover-top">
+    <div class="cover-wordmark">YUURECO</div>
+    <div class="cover-tagline">Premium Pillow Collection</div>
+  </div>
+  <div class="cover-badge">CATALOGUE</div>
+  <div class="cover-bottom">
+    <div class="cover-year">2026</div>
+    <div class="cover-sub">Sleep Better · Live Better · YUURECO</div>
+  </div>
+</div>`,
+        /* 1 TOC */
+        `<div class="eyebrow">Inside this catalogue</div>
+<h2 class="serif-h" style="font-size:24px;margin-bottom:4px">Table of Contents</h2>
+<p>Navigate YUURECO's best 2026 collection.</p>
+<div class="toc-list">
+  <div class="toc-row"><span>About Us</span><div class="toc-dots"></div><span class="toc-pg">02</span></div>
+  <div class="toc-row"><span>Premium Pillow Collection</span><div class="toc-dots"></div><span class="toc-pg">04</span></div>
+  <div class="toc-row"><span>Best Sellers</span><div class="toc-dots"></div><span class="toc-pg">05</span></div>
+  <div class="toc-row"><span>Special Promotions</span><div class="toc-dots"></div><span class="toc-pg">06</span></div>
+  <div class="toc-row"><span>Decorative Products</span><div class="toc-dots"></div><span class="toc-pg">07</span></div>
+  <div class="toc-row"><span>Size Guide</span><div class="toc-dots"></div><span class="toc-pg">08</span></div>
+</div>
+<div class="pgnum">01</div>`,
+        /* 2 ABOUT */
+        `<div class="eyebrow">About Our Brand</div>
+<h2 class="serif-h" style="font-size:22px;margin-bottom:8px">Sleep Better,<br>Live Better.</h2>
+<p>YUURECO is a premium Indonesian pillow brand that combines the latest filling technology with carefully chosen materials for the best sleep quality.</p>
+<div class="info-grid">
+  <div class="info-card"><b>Advantages</b><span>Premium memory foam & microfiber, antibacterial, hypoallergenic.</span></div>
+  <div class="info-card"><b>Collection</b><span>Sleep pillows, decorative cushions, long bolsters, and baby pillows.</span></div>
+  <div class="info-card"><b>Customers</b><span>Suitable for all ages, available throughout Indonesia.</span></div>
+  <div class="info-card"><b>Warranty</b><span>1-year warranty on every genuine YUURECO product.</span></div>
+</div>
+<div class="pgnum">02</div>`,
+        /* 3 FEATURED */
+        `<div class="split">
+  <div class="feat-img"></div>
+  <div class="feat-body">
+    <div class="sku">&#9632; Code YR-301</div>
+    <h2 class="serif-h" style="font-size:20px;margin-bottom:8px">CloudDream<br>Memory Foam Pillow</h2>
+    <p>Ergonomic memory foam pillow that naturally adapts to the shape of your head and neck.</p>
+    <div class="price">IDR 345.999</div>
+    <div class="detail-tbl">
+      <div><b>Color</b><span>White, Grey, Cream, Navy, Sage</span></div>
+      <div><b>Size</b><span>45×70 · 50×70 · 50×90 cm</span></div>
+      <div><b>Material</b><span>CertiPUR-US® Memory Foam</span></div>
+    </div>
+  </div>
+</div>
+<div class="pgnum">03</div>`,
+        /* 4 PRODUCT GRID */
+        `<div class="cat-hdr">
+  <div><div class="eyebrow">Featured Selection</div><h2 class="serif-h" style="font-size:20px">Premium Pillows</h2></div>
+  <span class="sku">2026 Collection</span>
+</div>
+<div class="prod-grid">
+  <div class="prod-card"><img src="bantal_card.png" alt="SoftCloud Microfiber"><h3>SoftCloud Microfiber</h3><p>Ultra-soft microfiber, lightweight and comfortable.</p><div class="prod-meta"><span>IDR 106.999</span></div></div>
+  <div class="prod-card"><img src="bantal_card1.png" alt="Splendor Series"><h3>Splendor Series</h3><p>Natural latex, great airflow, dust-mite resistant.</p><div class="prod-meta"><span>IDR 160.999</span></div></div>
+  <div class="prod-card"><img src="bantal_card2.png" alt="Premium Series"><h3>Premium Series</h3><p>Organic buckwheat filling, supports the neck.</p><div class="prod-meta"><span>IDR 40.999</span></div></div>
+  <div class="prod-card"><img src="bantal_card3.png" alt="Dacron Pillow"><h3>Dacron Pillow</h3><p>Cooling gel keeps your body temperature comfortable.</p><div class="prod-meta"><span>IDR 36.999</span></div></div>
+</div>
+<div class="pgnum">04</div>`,
+        /* 5 HOT PICKS */
+        `<div class="eyebrow">Customer Favorites</div>
+<h2 class="serif-h" style="font-size:22px;margin-bottom:4px">Best Sellers</h2>
+<p>Our two highest-rated, best-selling products.</p>
+<div class="hot-grid">
+  <div class="hot-card" style="background-image:url('Catalog1.png')"><div class="rnd">Rp<br>189k</div><div class="hot-body"><h3>SoftCloud</h3><p>Best seller – soft & lightweight.</p></div></div>
+  <div class="hot-card" style="background-image:url('Catalog2.png')"><div class="rnd">Rp<br>180k</div><div class="hot-body"><h3>CloudDream</h3><p>Rating ⭐ 4.9</p></div></div>
+</div>
+<div class="pgnum">05</div>`,
+        /* 6 PROMO */
+        `<div class="eyebrow">Special Offers</div>
+<h2 class="serif-h" style="font-size:22px;margin-bottom:4px">Special Promotions</h2>
+<p>Save up to 30% on selected products. Limited stock!</p>
+<div class="promo-grid">
+  <div class="promo-card"><span class="badge">SAVE<br>30%</span><img src="diskon.png" alt="Couple Set"><h3>Couple Set Bundle</h3><p>Two SoftCloud pillows in one money-saving bundle.</p><div class="promo-meta"><s style="color:var(--muted);font-weight:400">Rp378k</s> Rp265k</div></div>
+  <div class="promo-card"><span class="badge">SAVE<br>30%</span><img src="diskon2.png" alt="Pillowcase 2-Pack"><h3>Pillowcase 2-Pack</h3><p>400TC cotton, wrinkle-resistant, 8 color choices.</p><div class="promo-meta"><s style="color:var(--muted);font-weight:400">Rp220k</s> Rp154k</div></div>
+  <div class="promo-card"><span class="badge">SAVE<br>30%</span><img src="Diskon3.png" alt="CloudDream XL"><h3>CloudDream XL</h3><p>50×90cm memory foam version.</p><div class="promo-meta"><s style="color:var(--muted);font-weight:400">Rp510k</s> Rp357k</div></div>
+  <div class="promo-card"><span class="badge">SAVE<br>30%</span><img src="diskon4.png" alt="BodyHug Pillow"><h3>BodyHug Pillow</h3><p>Ideal for pregnancy & side sleeping.</p><div class="promo-meta"><s style="color:var(--muted);font-weight:400">Rp450k</s> Rp315k</div></div>
+</div>
+<div class="pgnum">06</div>`,
+        /* 7 DECORATIVE */
+        `<div class="cat-hdr">
+  <div><div class="eyebrow">Interior Essentials</div><h2 class="serif-h" style="font-size:20px">Decorative Products</h2></div>
+  <span class="sku">Shop the Look</span>
+</div>
+<div class="prod-grid">
+  <div class="prod-card"><img src="bantal_kids.png" alt="Nordic Linen"><h3>Nordic Linen Cushion</h3><p>Minimalist linen cover for sofas & chairs.</p><div class="prod-meta"><span>Rp 129.000</span></div></div>
+  <div class="prod-card"><img src="guling1.png" alt="Bohemian Knit"><h3>Bohemian Knit Pillow</h3><p>Boho knit pillow with a unique, aesthetic texture.</p><div class="prod-meta"><span>Rp 149.000</span></div></div>
+  <div class="prod-card"><img src="guling2.png" alt="Luxe Velvet"><h3>Luxe Velvet Cushion</h3><p>Premium velvet with elegant goose-down filling.</p><div class="prod-meta"><span>Rp 199.000</span></div></div>
+  <div class="prod-card"><img src="guling3.png" alt="KidsDream"><h3>KidsDream Pillow</h3><p>Hypoallergenic character pillow for little ones.</p><div class="prod-meta"><span>Rp 89.000</span></div></div>
+</div>
+<div class="pgnum">07</div>`,
+        /* 8 SIZE GUIDE */
+        `<div class="eyebrow">Selection Guide</div>
+<h2 class="serif-h" style="font-size:22px;margin-bottom:4px">Pillow Size Guide</h2>
+<p>Choose the size that matches your mattress and sleep needs. All dimensions are in centimeters.</p>
+<table class="size-tbl">
+  <thead><tr><th>Type</th><th>L</th><th>W</th><th>H</th><th>Best for</th></tr></thead>
+  <tbody>
+    <tr><td>Standard</td><td>45</td><td>65</td><td>12</td><td>Single/Twin</td></tr>
+    <tr><td>Queen</td><td>50</td><td>70</td><td>14</td><td>Queen</td></tr>
+    <tr><td>King</td><td>50</td><td>90</td><td>14</td><td>King</td></tr>
+    <tr><td>Body Hug</td><td>150</td><td>40</td><td>20</td><td>Everyone</td></tr>
+    <tr><td>Baby</td><td>30</td><td>45</td><td>8</td><td>Baby Crib</td></tr>
+  </tbody>
+</table>
+<div class="info-grid" style="margin-top:10px">
+  <div class="info-card"><b>Color Options</b><span>White, cream, grey, navy, sage green, dusty pink.</span></div>
+  <div class="info-card"><b>Note</b><span>All sizes are available in memory foam, microfiber, and latex.</span></div>
+</div>
+<div class="pgnum">08</div>`,
+        /* 9 BACK COVER */
+        `<div class="back-inner">
+  <div class="back-bg"></div><div class="back-overlay"></div>
+  <div class="back-content">
+    <div class="eyebrow" style="color:var(--br-lt)">Contact Us</div>
+    <h2>Thank You</h2>
+    <p>Get in touch for orders, our reseller program, or any questions about YUURECO products.</p>
+    <div class="contact-grid">
+      <div class="c-item"><b>Website</b><span>www.yuureco.id</span></div>
+      <div class="c-item"><b>Email</b><span>hello@yuureco.id</span></div>
+      <div class="c-item"><b>Instagram</b><span>@yuureco.official</span></div>
+      <div class="c-item"><b>WhatsApp</b><span>+62 812-0000-0000</span></div>
+    </div>
+    <div style="margin-top:20px;padding:16px;background:rgba(255,255,255,.12);border-radius:14px;text-align:center;border:1px solid rgba(255,255,255,.18)">
+      <h3 style="color:white;margin-bottom:8px;font-family:Georgia,serif;font-size:20px">Order Online</h3>
+      <p style="color:rgba(255,255,255,.75);margin-bottom:12px;font-size:11px">Scan the barcode to order online</p>
+      <img src="barcode.png" alt="Order QR Code" style="width:120px;height:120px;background:white;padding:8px;border-radius:10px">
+      <p style="margin-top:8px;font-size:11px;color:#f5d5c2">Scan → Order → Checkout</p>
+    </div>
+  </div>
+</div>`,
+      ];
+
       const spreads = [
         [null, 0],
         [1, 2],
@@ -1177,6 +1366,32 @@
         [7, 8],
         [9, null],
       ];
+
+      /* i18n: UI strings + which content language is active */
+      const UI = {
+        en: {
+          sub: "Product Catalogue 2026",
+          prevAria: "Previous page",
+          nextAria: "Next page",
+          hintInit: "Tap the left/right edge to turn the page",
+          hintShown: "Tap the left/right edge or swipe to turn the page",
+          pageWord: "Page",
+          spreadWord: "Spread",
+          title: "YUURECO Pillow Catalog 2026",
+        },
+        id: {
+          sub: "Katalog Produk 2026",
+          prevAria: "Halaman sebelumnya",
+          nextAria: "Halaman berikutnya",
+          hintInit: "Ketuk tepi kiri/kanan untuk berpindah halaman",
+          hintShown: "Ketuk tepi kiri/kanan atau geser untuk berpindah halaman",
+          pageWord: "Halaman",
+          spreadWord: "Spread",
+          title: "Katalog Bantal YUURECO 2026",
+        },
+      };
+      let currentLang = "en";
+      let pages = pagesEN;
 
       const dL = document.getElementById("dL"),
         dR = document.getElementById("dR");
@@ -1238,14 +1453,17 @@
       }
 
       function updateNav() {
+        const t = UI[currentLang];
         if (isMob()) {
           navPrev.disabled = mIdx <= 0;
           navNext.disabled = mIdx >= pages.length - 1;
-          counter.textContent = "Halaman " + (mIdx + 1) + " / " + pages.length;
+          counter.textContent =
+            t.pageWord + " " + (mIdx + 1) + " / " + pages.length;
         } else {
           navPrev.disabled = dIdx <= 0;
           navNext.disabled = dIdx >= spreads.length - 1;
-          counter.textContent = "Spread " + (dIdx + 1) + " / " + spreads.length;
+          counter.textContent =
+            t.spreadWord + " " + (dIdx + 1) + " / " + spreads.length;
         }
       }
 
@@ -1420,6 +1638,49 @@
       bindSwipe(document.getElementById("book-desk"));
       bindSwipe(document.getElementById("book-mob"));
 
+      /* Translate feature: switch catalogue language between EN / ID */
+      const langSwitch = document.getElementById("langSwitch");
+      const subLabel = document.getElementById("subLabel");
+      const dPrevBtn = document.getElementById("dPrev"),
+        dNextBtn = document.getElementById("dNext"),
+        mPrevBtn = document.getElementById("mPrev"),
+        mNextBtn = document.getElementById("mNext");
+
+      function setLanguage(lang) {
+        if (lang === currentLang || busy) return;
+        currentLang = lang;
+        pages = lang === "en" ? pagesEN : pagesID;
+        const t = UI[lang];
+
+        document.documentElement.lang = lang;
+        document.title = t.title;
+        subLabel.textContent = t.sub;
+        dPrevBtn.setAttribute("aria-label", t.prevAria);
+        dNextBtn.setAttribute("aria-label", t.nextAria);
+        mPrevBtn.setAttribute("aria-label", t.prevAria);
+        mNextBtn.setAttribute("aria-label", t.nextAria);
+
+        langSwitch.querySelectorAll(".lang-btn").forEach((b) => {
+          b.classList.toggle("active", b.dataset.lang === lang);
+        });
+
+        /* re-render the page(s) currently on screen, keeping position */
+        if (isMob()) {
+          fill(mS, mIdx, "spg");
+        } else {
+          fill(dL, spreads[dIdx][0], "pg L");
+          fill(dR, spreads[dIdx][1], "pg R");
+        }
+        updateNav();
+        showHint(t.hintShown);
+      }
+
+      langSwitch.addEventListener("click", (e) => {
+        const btn = e.target.closest(".lang-btn");
+        if (!btn) return;
+        setLanguage(btn.dataset.lang);
+      });
+
       /* resize: TIDAK reset ke halaman awal, hanya sync tampilan */
       let rto;
       window.addEventListener("resize", () => {
@@ -1453,7 +1714,7 @@
         fill(dR, spreads[0][1], "pg R");
         fill(mS, 0, "spg");
         updateNav();
-        showHint("Ketuk tepi kiri/kanan atau geser untuk berpindah halaman");
+        showHint(UI[currentLang].hintShown);
       })();
     </script>
   </body>
